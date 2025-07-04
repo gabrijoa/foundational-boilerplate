@@ -59,7 +59,7 @@ jobs:
       - name: Run Prisma Migrations
         run: npm run migrate:deploy -w backend
         env:
-          DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb?schema=public"
+          DATABASE_URL: "postgresql://myuser:mypassword@localhost:5432/mydatabase?schema=public"
 
       # Passo x: Rodar os testes do backend
       - name: Run backend integration tests
@@ -68,4 +68,4 @@ jobs:
         env:
           # A URL de conexão aponta para o serviço 'postgres' que criamos acima.
           # Usamos 'localhost' porque o GitHub Actions mapeia os serviços para a rede local do runner.
-          DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb?schema=public"
+          DATABASE_URL: "postgresql://myuser:mypassword@localhost:5432/mydatabase?schema=public"
