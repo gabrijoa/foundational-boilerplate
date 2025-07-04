@@ -1,8 +1,6 @@
 // packages/backend/src/note.controller.ts
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from './prisma';
 
 // CREATE
 export const createNote = async (req: Request, res: Response) => {

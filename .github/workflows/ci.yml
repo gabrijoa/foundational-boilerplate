@@ -1,65 +1,63 @@
 # .github/workflows/ci.yml
 
-name: CI - Backend Tests
+name: Backend CI - Run Integration Tests
 
-# Gatilhos: Roda em pushes e pull requests para a branch main
+# GATILHOS: Quando este workflow deve rodar?
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ] # Em todo push para a branch 'main'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ] # Em toda pull request aberta para a 'main'
 
 jobs:
-  # Nome do nosso "trabalho"
+  # NOME DO JOB: Teremos apenas um "trabalho" a ser feito
   test-backend:
-    runs-on: ubuntu-latest # A máquina virtual que será usada
+    # MÁQUINA VIRTUAL: Usará a versão mais recente do Linux Ubuntu
+    runs-on: ubuntu-latest
 
-    # Define os serviços que este job precisa. É como um mini docker-compose!
+    # SERVIÇOS: Define contêineres extras que rodam junto com o job.
+    # É como um mini docker-compose para o nosso teste.
     services:
-      # Damos um nome ao nosso serviço de banco de dados: 'postgres'
+      # Nomeamos nosso serviço de banco de dados como 'postgres'
       postgres:
-        image: postgres:16-alpine # A imagem Docker a ser usada
+        image: postgres:16-alpine # A imagem Docker do banco
         # Variáveis de ambiente para o contêiner do banco de teste
         env:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpassword
           POSTGRES_DB: testdb
+        # Expõe a porta do contêiner para a máquina virtual (o runner)
         ports:
-          - 5432:5432 # Mapeia a porta para o runner
-        # Verificação de saúde para garantir que o banco está pronto
+          - 5432:5432
+        # Verificação de saúde: Garante que o job principal espere o banco estar 100% pronto
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
+    # PASSOS: A sequência de comandos que o nosso robô irá executar
     steps:
-      # 1. Baixa o seu código do repositório
+      # Passo 1: Baixar o código do seu repositório
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Configura o ambiente Node.js
+      # Passo 2: Configurar o ambiente Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'npm' # Ativa o cache para acelerar o 'npm install' futuro
 
-      # 3. Instala todas as dependências do projeto
+      # Passo 3: Instalar todas as dependências do projeto
       - name: Install dependencies
         run: npm install
 
-      # 4. Aplica as migrações no banco de dados de teste
-      - name: Run Prisma migrations
-        run: npx prisma migrate deploy
-        env:
-          # A URL de conexão aponta para o serviço 'postgres' que criamos
-          # Note que o host é 'localhost' porque o GitHub Actions mapeia os serviços para a rede local do runner
-          DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb?schema=public"
-
-      # 5. Roda os testes do backend
-      - name: Run backend tests
+      # Passo 4: Rodar os testes do backend
+      - name: Run backend integration tests
         run: npm test -w backend
+        # Injeta a variável de ambiente necessária para este passo
         env:
-          # Os testes também precisam saber como se conectar ao banco
+          # A URL de conexão aponta para o serviço 'postgres' que criamos acima.
+          # Usamos 'localhost' porque o GitHub Actions mapeia os serviços para a rede local do runner.
           DATABASE_URL: "postgresql://testuser:testpassword@localhost:5432/testdb?schema=public"
