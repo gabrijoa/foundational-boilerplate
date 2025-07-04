@@ -1,0 +1,17 @@
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Note {
+  id        String   @id @default(cuid()) // ID único
+  title     String
+  content   String?  // O '?' torna o campo opcional
+  createdAt DateTime @default(now())      // Data de criação automática
+  updatedAt DateTime @updatedAt          // Data de atualização automática
+  completed Boolean  @default(false)      // Um campo para saber se a nota foi concluída
+}
