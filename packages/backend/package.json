@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": "jest",
+  "scripts": {
+    "test": "jest",
     "dev": "dotenv -e ../../.env -- ts-node-dev src/server.ts",
     "build": "tsc",
     "generate": "prisma generate",
