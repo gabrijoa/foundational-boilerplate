@@ -7,7 +7,10 @@
     "test": "dotenv -e ../../.env.test jest",
     "dev": "dotenv -e ../../.env -- ts-node-dev src/server.ts",
     "build": "tsc",
-    "migrate:dev": "dotenv -e ../../.env -- prisma migrate dev"
+    "generate": "prisma generate",
+    "migrate:dev": "dotenv -e ../../.env -- prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy"
+    
   },
   "keywords": [],
   "author": "",
