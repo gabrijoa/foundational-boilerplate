@@ -23,9 +23,9 @@ jobs:
         image: postgres:16-alpine # A imagem Docker do banco
         # Variáveis de ambiente para o contêiner do banco de teste
         env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: testdb
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: mydatabase
         # Expõe a porta do contêiner para a máquina virtual (o runner)
         ports:
           - 5432:5432
