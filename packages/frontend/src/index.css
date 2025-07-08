@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+
+* {
+    font-family: 'segoe ui', sans-serif;
+    
+}
