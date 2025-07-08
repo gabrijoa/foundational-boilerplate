@@ -63,7 +63,7 @@ jobs:
 
       # Passo x: Rodar os testes do backend
       - name: Run backend integration tests
-        run: npm test -w backend
+        run: npm ci -w backend
         # Injeta a variável de ambiente necessária para este passo
         env:
           # A URL de conexão aponta para o serviço 'postgres' que criamos acima.

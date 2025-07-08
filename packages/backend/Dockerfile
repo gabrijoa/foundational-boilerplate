@@ -30,6 +30,10 @@
     COPY --from=builder /app/packages/backend/dist ./dist
     
     COPY ./packages/backend/prisma ./prisma/
-    
+
+    COPY ./packages/backend/entrypoint.sh ./entrypoint.sh
+    RUN chmod +x ./entrypoint.sh
+
     EXPOSE 3000
+    ENTRYPOINT ["./entrypoint.sh"]
     CMD [ "node", "dist/server.js" ]

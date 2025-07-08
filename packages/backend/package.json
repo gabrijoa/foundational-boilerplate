@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "dotenv -e ../../.env.test -- jest",
+    "ci": "jest",
     "dev": "dotenv -e ../../.env -- ts-node-dev src/server.ts",
     "build": "tsc",
     "generate": "prisma generate",
