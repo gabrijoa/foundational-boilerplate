@@ -7,7 +7,6 @@ A comprehensive, production-ready boilerplate for building modern full-stack app
 ## 📋 Table of Contents
 
 - [🎯 Project Overview](#-project-overview)
-- [🏗️ Architecture](#️-architecture)
 - [🚀 Quick Start](#-quick-start)
 - [🛠️ Technology Stack](#️-technology-stack)
 - [📁 Project Structure](#-project-structure)
@@ -39,43 +38,7 @@ This boilerplate provides a complete full-stack development environment with:
 - ✅ **Testing Ready** - Jest configuration with test databases
 - ✅ **Docker Ready** - Production-ready containerization
 - ✅ **Development Tools** - ESLint, hot reload, and debugging setup
-- ✅ **Responsive Design** - Mobile-first approach with Tailwind CSS
 
-## 🏗️ Architecture
-
-```mermaid
-graph TB
-    subgraph "Frontend (React + TypeScript)"
-        A[Landing Page] --> B[CRUD Interface]
-        B --> C[API Service Layer]
-    end
-    
-    subgraph "Backend (Node.js + Express)"
-        D[Express Server] --> E[Note Controller]
-        E --> F[Note Routes]
-        F --> G[Prisma Client]
-    end
-    
-    subgraph "Database"
-        H[PostgreSQL]
-        I[Prisma Migrations]
-    end
-    
-    subgraph "Infrastructure"
-        J[Docker Compose]
-        K[Multi-stage Dockerfile]
-    end
-    
-    C --> D
-    G --> H
-    I --> H
-    J --> K
-    
-    style A fill:#e1f5fe
-    style D fill:#f3e5f5
-    style H fill:#e8f5e8
-    style J fill:#fff3e0
-```
 
 ## 🚀 Quick Start
 
@@ -100,8 +63,6 @@ npm install
 
 ```bash
 # Create environment files
-cp .env.example .env
-cp .env.test.example .env.test
 
 # Configure your database URLs in .env and .env.test
 ```
@@ -110,13 +71,8 @@ cp .env.test.example .env.test
 
 ```bash
 # Start database with Docker
-docker-compose up -d postgres
+docker-compose up 
 
-# Run migrations
-npm run migrate:dev -w backend
-
-# Generate Prisma client
-npm run generate -w backend
 ```
 
 ### 4. Start Development Servers
@@ -210,7 +166,7 @@ npm run build -w backend        # Build backend for production
 npm run build -w frontend       # Build frontend for production
 
 # Testing
-npm run test -w backend         # Run backend tests
+npm run test -w backend         # Run backend tests (needs to create a env.test with postgre URL_DATABASE)
 npm run ci -w backend          # Run tests in CI environment
 
 # Database
@@ -259,19 +215,6 @@ docker-compose logs -f backend
 docker-compose logs -f frontend
 ```
 
-### Production Deployment
-
-```bash
-# Build production images
-docker-compose -f docker-compose.prod.yml build
-
-# Deploy to production
-docker-compose -f docker-compose.prod.yml up -d
-
-# Health check
-curl http://localhost:3001/
-curl http://localhost:80/
-```
 
 ### Container Details
 
@@ -291,8 +234,6 @@ npm run test -w backend
 # Run specific test file
 npm run test -w backend -- notes.test.ts
 
-# Run with coverage
-npm run test -w backend -- --coverage
 ```
 
 ### Test Structure
@@ -302,12 +243,6 @@ npm run test -w backend -- --coverage
 - **Error Handling**: Comprehensive error scenarios
 - **Data Validation**: Input validation testing
 
-### Frontend Testing (Planned)
-
-- **Unit Tests**: Component testing with React Testing Library
-- **Integration Tests**: API service testing
-- **E2E Tests**: Full user workflow testing
-- **Visual Regression**: UI consistency testing
 
 ## 📚 Documentation
 
@@ -386,65 +321,6 @@ PORT=3001
 # .env.test
 DATABASE_URL="postgresql://username:password@localhost:5432/test_database"
 ```
-
-## 🤝 Contributing
-
-### Development Setup
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Install dependencies: `npm install`
-4. Make your changes
-5. Run tests: `npm run test -w backend`
-6. Commit changes: `git commit -m 'Add amazing feature'`
-7. Push to branch: `git push origin feature/amazing-feature`
-8. Open Pull Request
-
-### Code Standards
-
-- **TypeScript**: Use strict type checking
-- **ESLint**: Follow configured linting rules
-- **Comments**: Document complex logic
-- **Tests**: Write tests for new features
-- **Commits**: Use conventional commit messages
-
-## 📋 Roadmap
-
-### Phase 1 - Foundation ✅
-- [x] Basic full-stack setup
-- [x] CRUD operations
-- [x] Database integration
-- [x] Docker containerization
-- [x] Testing framework
-- [x] Documentation
-
-### Phase 2 - Authentication 🔄
-- [ ] JWT authentication
-- [ ] User registration/login
-- [ ] Protected routes
-- [ ] Role-based access control
-
-### Phase 3 - Advanced Features 📋
-- [ ] Real-time updates (WebSocket)
-- [ ] File upload handling
-- [ ] Search and filtering
-- [ ] Pagination
-- [ ] Caching layer (Redis)
-
-### Phase 4 - Production Ready 🚀
-- [ ] CI/CD pipeline
-- [ ] Monitoring and logging
-- [ ] Performance optimization
-- [ ] Security hardening
-- [ ] Load balancing
-
-### Phase 5 - Developer Experience 🛠️
-- [ ] Code generators
-- [ ] API documentation (Swagger)
-- [ ] Developer dashboard
-- [ ] Migration tools
-- [ ] Performance analytics
-
 ## 📄 License
 
 This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
