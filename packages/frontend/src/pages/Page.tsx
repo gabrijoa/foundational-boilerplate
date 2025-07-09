@@ -1,3 +1,24 @@
+/**
+ * @fileoverview Landing page component with project showcase
+ * @description This component renders the main landing page with project information,
+ * featuring a visual design showcasing the fullstack boilerplate technologies.
+ * @author Joa Gabri
+ * @version 1.0.0
+ */
+
+/**
+ * Landing page component
+ * @description Main page component that displays project information and technologies used.
+ * Features a split-screen design with custom backgrounds and typography styling.
+ * @component
+ * @returns {JSX.Element} Landing page with project showcase and technology stack
+ * @example
+ * // This component is rendered when user visits the root "/" route
+ * // Displays:
+ * // - Project motto/tagline
+ * // - Technology stack information
+ * // - Link to project documentation
+ */
 function page() {
   return (
     <>
@@ -11,7 +32,7 @@ function page() {
           backgroundBlendMode: "difference"
         }}
       >
-        {/* Primeira seção - 50% da altura */}
+        {/* Top section - 50% height with project motto */}
         <div
           className="flex-1 w-full flex items-end justify-start "
           style={{
@@ -20,7 +41,7 @@ function page() {
             backgroundSize: "100%",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            /* O efeito 'difference' é aplicado usando backgroundBlendMode */
+            /* The 'difference' blend mode effect is applied using backgroundBlendMode */
             backgroundBlendMode: "difference"
           }}
         >
@@ -31,7 +52,7 @@ function page() {
           </p>
         </div>
 
-        {/* Segunda seção - 50% da altura */}
+        {/* Bottom section - 50% height with technology stack */}
         <div className="flex-1 w-full flex flex-col items-end justify-top ">
           <p className="text-[#77E1ED] text-4xl text-right pt-4 pr-8 font-bold">
             FullStack Boilerplate with::
@@ -41,7 +62,7 @@ function page() {
             <br /> Github Actions, Docker
           </div>
         </div>
-        {/* Parágrafo fixo no canto inferior direito */}
+        {/* Fixed paragraph in bottom right corner with documentation link */}
         <p className="absolute bottom-0 right-4 text-white text-lg text-right font-bold "
         style={{
          fontFamily: "Space Mono",

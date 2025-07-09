@@ -1,19 +1,54 @@
+/**
+ * @fileoverview CRUD operations page for notes management
+ * @description This component provides a complete interface for Create, Read, Update,
+ * and Delete operations on notes, with form handling and state management.
+ * @author Joa Gabri
+ * @version 1.0.0
+ */
+
 import { useState, useEffect } from 'react';
 import { noteService } from '../services/api';
 import type { Note } from '../services/api';
 
+/**
+ * CRUD Page component for notes management
+ * @description Complete interface for managing notes with full CRUD functionality.
+ * Includes form for creating/editing notes and a list displaying all notes.
+ * @component
+ * @returns {JSX.Element} Complete CRUD interface with form and notes list
+ * @example
+ * // This component is rendered when user navigates to /crud route
+ * // Provides:
+ * // - Create new notes
+ * // - Edit existing notes
+ * // - Delete notes
+ * // - Mark notes as completed/incomplete
+ */
 function CrudPage() {
+  // State management for component data and UI
   const [notes, setNotes] = useState<Note[]>([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Carregar notas ao montar o componente
+  /**
+   * Effect hook to load notes when component mounts
+   * @description Automatically fetches all notes when the component is first rendered
+   */
   useEffect(() => {
     loadNotes();
   }, []);
 
+  /**
+   * Loads all notes from the backend API
+   * @description Fetches notes from the API and updates component state.
+   * Handles loading state and error scenarios.
+   * @async
+   * @function loadNotes
+   * @returns {Promise<void>} Promise that resolves when notes are loaded
+   * @throws {Error} Shows alert on API error
+   */
   const loadNotes = async () => {
     try {
       setLoading(true);
@@ -27,6 +62,16 @@ function CrudPage() {
     }
   };
 
+  /**
+   * Handles form submission for creating or updating notes
+   * @description Processes form data to either create a new note or update existing one.
+   * Validates input and manages form state reset.
+   * @async
+   * @function handleSubmit
+   * @param {React.FormEvent} e - Form submission event
+   * @returns {Promise<void>} Promise that resolves when operation completes
+   * @throws {Error} Shows alert on validation or API errors
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
@@ -36,11 +81,11 @@ function CrudPage() {
 
     try {
       if (editingNote) {
-        // Atualizar nota existente
+        // Update existing note
         await noteService.updateNote(editingNote.id, title, content, editingNote.completed);
         setEditingNote(null);
       } else {
-        // Criar nova nota
+        // Create new note
         await noteService.createNote(title, content);
       }
       
@@ -53,12 +98,30 @@ function CrudPage() {
     }
   };
 
+  /**
+   * Initiates note editing mode
+   * @description Sets up the form for editing an existing note by populating
+   * form fields with current note data.
+   * @function handleEdit
+   * @param {Note} note - Note object to be edited
+   * @returns {void}
+   */
   const handleEdit = (note: Note) => {
     setEditingNote(note);
     setTitle(note.title);
     setContent(note.content);
   };
 
+  /**
+   * Handles note deletion with confirmation
+   * @description Prompts user for confirmation before deleting a note.
+   * Refreshes the notes list after successful deletion.
+   * @async
+   * @function handleDelete
+   * @param {string} id - Unique identifier of the note to delete
+   * @returns {Promise<void>} Promise that resolves when deletion completes
+   * @throws {Error} Shows alert on API error
+   */
   const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja deletar esta nota?')) {
       try {
@@ -71,12 +134,28 @@ function CrudPage() {
     }
   };
 
+  /**
+   * Cancels note editing and resets form
+   * @description Clears editing state and resets form fields to initial values.
+   * @function handleCancel
+   * @returns {void}
+   */
   const handleCancel = () => {
     setEditingNote(null);
     setTitle('');
     setContent('');
   };
 
+  /**
+   * Toggles note completion status
+   * @description Changes the completed status of a note and updates it via API.
+   * Refreshes the notes list to reflect changes.
+   * @async
+   * @function toggleComplete
+   * @param {Note} note - Note object to toggle completion status
+   * @returns {Promise<void>} Promise that resolves when update completes
+   * @throws {Error} Shows alert on API error
+   */
   const toggleComplete = async (note: Note) => {
     try {
       await noteService.updateNote(note.id, note.title, note.content, !note.completed);
@@ -92,7 +171,7 @@ function CrudPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">CRUD - Gerenciamento de Notas</h1>
         
-        {/* Formulário */}
+        {/* Form Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">
             {editingNote ? 'Editar Nota' : 'Nova Nota'}
@@ -146,7 +225,7 @@ function CrudPage() {
           </form>
         </div>
 
-        {/* Lista de Notas */}
+        {/* Notes List Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Notas Cadastradas</h2>
           
@@ -174,6 +253,7 @@ function CrudPage() {
                       </p>
                     </div>
                     
+                    {/* Action buttons */}
                     <div className="flex gap-2 ml-4">
                       <button
                         onClick={() => toggleComplete(note)}

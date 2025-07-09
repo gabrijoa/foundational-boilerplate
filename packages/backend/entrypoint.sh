@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# entrypoint serve para executar o script de migração do banco de dados e o comando principal que foi passado para o script.
+
 # O comando 'set -e' garante que o script pare imediatamente se algum comando falhar.
 set -e
 
