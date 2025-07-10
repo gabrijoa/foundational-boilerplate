@@ -1,224 +1,158 @@
 /**
- * @fileoverview CRUD operations page for notes management
+ * @fileoverview CRUD operations page for notes management.
  * @description This component provides a complete interface for Create, Read, Update,
  * and Delete operations on notes, with form handling and state management.
  * @author Joa Gabri
  * @version 1.0.0
  */
 
-import { useState, useEffect } from 'react';
-import { noteService } from '../services/api';
-import type { Note } from '../services/api';
+import { useState, useEffect, useCallback } from 'react';
+import { noteService, type Note } from '../services/api';
 
 /**
- * CRUD Page component for notes management
- * @description Complete interface for managing notes with full CRUD functionality.
- * Includes form for creating/editing notes and a list displaying all notes.
- * @component
- * @returns {JSX.Element} Complete CRUD interface with form and notes list
- * @example
- * // This component is rendered when user navigates to /crud route
- * // Provides:
- * // - Create new notes
- * // - Edit existing notes
- * // - Delete notes
- * // - Mark notes as completed/incomplete
+ * A full-featured page for managing notes with CRUD functionality.
+ * @returns {JSX.Element} The complete CRUD interface.
  */
 function CrudPage() {
-  // State management for component data and UI
+  // State management
   const [notes, setNotes] = useState<Note[]>([]);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [currentNote, setCurrentNote] = useState({ title: '', content: '' });
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   /**
-   * Effect hook to load notes when component mounts
-   * @description Automatically fetches all notes when the component is first rendered
+   * Fetches all notes from the API and updates the component state.
+   * Wrapped in useCallback to prevent re-creation on every render.
    */
-  useEffect(() => {
-    loadNotes();
-  }, []);
-
-  /**
-   * Loads all notes from the backend API
-   * @description Fetches notes from the API and updates component state.
-   * Handles loading state and error scenarios.
-   * @async
-   * @function loadNotes
-   * @returns {Promise<void>} Promise that resolves when notes are loaded
-   * @throws {Error} Shows alert on API error
-   */
-  const loadNotes = async () => {
+  const loadNotes = useCallback(async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
+      setError(null);
       const notesData = await noteService.getAllNotes();
       setNotes(notesData);
-    } catch (error) {
-      console.error('Erro ao carregar notas:', error);
-      alert('Erro ao carregar notas');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load notes';
+      setError(errorMessage);
+      console.error('Failed to load notes:', errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
+  }, []);
+
+  // Load notes automatically when the component mounts.
+  useEffect(() => {
+    loadNotes();
+  }, [loadNotes]);
+
+  /**
+   * Clears the form and exits editing mode.
+   */
+  const resetForm = () => {
+    setCurrentNote({ title: '', content: '' });
+    setEditingNoteId(null);
   };
 
   /**
-   * Handles form submission for creating or updating notes
-   * @description Processes form data to either create a new note or update existing one.
-   * Validates input and manages form state reset.
-   * @async
-   * @function handleSubmit
-   * @param {React.FormEvent} e - Form submission event
-   * @returns {Promise<void>} Promise that resolves when operation completes
-   * @throws {Error} Shows alert on validation or API errors
+   * Handles form submission for both creating and updating notes.
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      alert('Título e conteúdo são obrigatórios');
+    if (!currentNote.title.trim()) {
+      alert('Title is required');
       return;
     }
 
     try {
-      if (editingNote) {
+      if (editingNoteId) {
         // Update existing note
-        await noteService.updateNote(editingNote.id, title, content, editingNote.completed);
-        setEditingNote(null);
+        const updatedNote = await noteService.updateNote(editingNoteId, currentNote);
+        setNotes(notes.map((n) => (n.id === editingNoteId ? updatedNote : n)));
       } else {
         // Create new note
-        await noteService.createNote(title, content);
+        const newNote = await noteService.createNote(currentNote);
+        setNotes([...notes, newNote]);
       }
-      
-      setTitle('');
-      setContent('');
-      await loadNotes();
-    } catch (error) {
-      console.error('Erro ao salvar nota:', error);
-      alert('Erro ao salvar nota');
+      resetForm();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save note';
+      setError(errorMessage);
+      console.error('Failed to save note:', errorMessage);
     }
   };
 
   /**
-   * Initiates note editing mode
-   * @description Sets up the form for editing an existing note by populating
-   * form fields with current note data.
-   * @function handleEdit
-   * @param {Note} note - Note object to be edited
-   * @returns {void}
+   * Sets up the form for editing an existing note.
    */
   const handleEdit = (note: Note) => {
-    setEditingNote(note);
-    setTitle(note.title);
-    setContent(note.content);
+    setEditingNoteId(note.id);
+    setCurrentNote({ title: note.title, content: note.content || '' });
   };
 
   /**
-   * Handles note deletion with confirmation
-   * @description Prompts user for confirmation before deleting a note.
-   * Refreshes the notes list after successful deletion.
-   * @async
-   * @function handleDelete
-   * @param {string} id - Unique identifier of the note to delete
-   * @returns {Promise<void>} Promise that resolves when deletion completes
-   * @throws {Error} Shows alert on API error
+   * Handles the deletion of a note after confirmation.
    */
   const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja deletar esta nota?')) {
+    if (window.confirm('Are you sure you want to delete this note?')) {
       try {
         await noteService.deleteNote(id);
-        await loadNotes();
-      } catch (error) {
-        console.error('Erro ao deletar nota:', error);
-        alert('Erro ao deletar nota');
+        setNotes(notes.filter((note) => note.id !== id));
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to delete note';
+        setError(errorMessage);
+        console.error('Failed to delete note:', errorMessage);
       }
     }
   };
-
+  
   /**
-   * Cancels note editing and resets form
-   * @description Clears editing state and resets form fields to initial values.
-   * @function handleCancel
-   * @returns {void}
-   */
-  const handleCancel = () => {
-    setEditingNote(null);
-    setTitle('');
-    setContent('');
-  };
-
-  /**
-   * Toggles note completion status
-   * @description Changes the completed status of a note and updates it via API.
-   * Refreshes the notes list to reflect changes.
-   * @async
-   * @function toggleComplete
-   * @param {Note} note - Note object to toggle completion status
-   * @returns {Promise<void>} Promise that resolves when update completes
-   * @throws {Error} Shows alert on API error
+   * Toggles the completion status of a note.
    */
   const toggleComplete = async (note: Note) => {
     try {
-      await noteService.updateNote(note.id, note.title, note.content, !note.completed);
-      await loadNotes();
-    } catch (error) {
-      console.error('Erro ao atualizar nota:', error);
-      alert('Erro ao atualizar nota');
+      const updatedNote = await noteService.updateNote(note.id, { completed: !note.completed });
+      setNotes(notes.map((n) => (n.id === note.id ? updatedNote : n)));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update note status';
+      setError(errorMessage);
+      console.error('Failed to update note status:', errorMessage);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">CRUD - Gerenciamento de Notas</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Notes Management</h1>
         
+        {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">{error}</div>}
+
         {/* Form Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">
-            {editingNote ? 'Editar Nota' : 'Nova Nota'}
+            {editingNoteId ? 'Edit Note' : 'Create New Note'}
           </h2>
-          
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Título
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Digite o título da nota"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Conteúdo
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Digite o conteúdo da nota"
-              />
-            </div>
-            
+            <input
+              type="text"
+              value={currentNote.title}
+              onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Note title"
+            />
+            <textarea
+              value={currentNote.content}
+              onChange={(e) => setCurrentNote({ ...currentNote, content: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Note content..."
+            />
             <div className="flex gap-2">
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-              >
-                {editingNote ? 'Atualizar' : 'Criar'}
+              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
+                {editingNoteId ? 'Update' : 'Create'}
               </button>
-              
-              {editingNote && (
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-                >
-                  Cancelar
+              {editingNoteId && (
+                <button type="button" onClick={resetForm} className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">
+                  Cancel
                 </button>
               )}
             </div>
@@ -226,64 +160,28 @@ function CrudPage() {
         </div>
 
         {/* Notes List Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Notas Cadastradas</h2>
-          
-          {loading ? (
-            <p className="text-gray-500">Carregando notas...</p>
+        <div className="space-y-4">
+          {isLoading ? (
+            <p className="text-gray-500">Loading notes...</p>
           ) : notes.length === 0 ? (
-            <p className="text-gray-500">Nenhuma nota encontrada</p>
+            <p className="text-gray-500">No notes found. Create one!</p>
           ) : (
-            <div className="space-y-4">
-              {notes.map((note) => (
-                <div 
-                  key={note.id}
-                  className={`border rounded-lg p-4 ${note.completed ? 'bg-green-50 border-green-200' : 'border-gray-200'}`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className={`text-lg font-medium ${note.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                        {note.title}
-                      </h3>
-                      <p className={`text-gray-600 mt-2 ${note.completed ? 'line-through' : ''}`}>
-                        {note.content}
-                      </p>
-                      <p className="text-sm text-gray-400 mt-2">
-                        Criado em: {new Date(note.createdAt).toLocaleString('pt-BR')}
-                      </p>
-                    </div>
-                    
-                    {/* Action buttons */}
-                    <div className="flex gap-2 ml-4">
-                      <button
-                        onClick={() => toggleComplete(note)}
-                        className={`px-3 py-1 text-sm rounded ${
-                          note.completed 
-                            ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
-                            : 'bg-green-500 text-white hover:bg-green-600'
-                        } transition-colors`}
-                      >
-                        {note.completed ? 'Reabrir' : 'Concluir'}
-                      </button>
-                      
-                      <button
-                        onClick={() => handleEdit(note)}
-                        className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 transition-colors"
-                      >
-                        Editar
-                      </button>
-                      
-                      <button
-                        onClick={() => handleDelete(note.id)}
-                        className="bg-red-500 text-white px-3 py-1 text-sm rounded hover:bg-red-600 transition-colors"
-                      >
-                        Deletar
-                      </button>
-                    </div>
-                  </div>
+            notes.map((note) => (
+              <div key={note.id} className={`bg-white rounded-lg shadow-md p-4 flex justify-between items-start ${note.completed ? 'opacity-60' : ''}`}>
+                <div className="flex-1">
+                  <h3 className={`text-lg font-medium ${note.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>{note.title}</h3>
+                  <p className="text-gray-600 mt-2">{note.content}</p>
+                  <p className="text-sm text-gray-400 mt-2">Last updated: {new Date(note.updatedAt).toLocaleString()}</p>
                 </div>
-              ))}
-            </div>
+                <div className="flex flex-col sm:flex-row gap-2 ml-4">
+                  <button onClick={() => toggleComplete(note)} className={`px-3 py-1 text-sm rounded transition-colors ${note.completed ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-green-500 text-white hover:bg-green-600'}`}>
+                    {note.completed ? 'Reopen' : 'Complete'}
+                  </button>
+                  <button onClick={() => handleEdit(note)} className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 transition-colors">Edit</button>
+                  <button onClick={() => handleDelete(note.id)} className="bg-red-500 text-white px-3 py-1 text-sm rounded hover:bg-red-600 transition-colors">Delete</button>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
@@ -291,4 +189,4 @@ function CrudPage() {
   );
 }
 
-export default CrudPage; 
+export default CrudPage;
