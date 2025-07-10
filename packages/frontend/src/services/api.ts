@@ -31,7 +31,7 @@ interface Note {
  * @description Points to the backend server running on port 3001
  * @constant {string}
  */
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = '/api';
 
 /**
  * Note service object containing all API operations
