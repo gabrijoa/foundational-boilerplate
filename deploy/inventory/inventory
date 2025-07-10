@@ -1,0 +1,2 @@
+[ec2_servers]
+ec2 ansible_host= ['insert your ec2 hosts here']

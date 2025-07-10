@@ -1,3 +1,5 @@
+#using this playbook you can deploy your project to a new ec2 instance (this is only a sample, you can deploy this but i recommend you to create your own playbook)
+
 ---
 - name: Deploy Foundational Boilerplate (Docker-only)
   hosts: all
@@ -38,7 +40,13 @@
         force: yes
       become_user: "{{ app_user }}"
 
-    # (Você sobe o .env manualmente)
+    - name: Copy .env file to the project directory
+      copy:
+        src: .env # you need to create this file in the same folder as your playbook
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0600'
 
     - name: Run docker-compose up
       shell: docker-compose up -d
