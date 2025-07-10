@@ -15,9 +15,6 @@ A comprehensive, production-ready boilerplate for building modern full-stack app
 - [🧪 Testing](#-testing)
 - [📚 Documentation](#-documentation)
 - [🚨 Troubleshooting](#-troubleshooting)
-- [🤝 Contributing](#-contributing)
-- [📋 Roadmap](#-roadmap)
-
 ## 🎯 Project Overview
 
 This boilerplate provides a complete full-stack development environment with:
@@ -113,7 +110,7 @@ npm run dev -w frontend
 ### Infrastructure
 - **Docker** - Containerization
 - **Docker Compose** - Multi-container orchestration
-- **GitHub Actions** - CI/CD pipeline (planned)
+- **GitHub Actions** - CI/CD pipeline 
 - **Nginx** - Production web server (frontend)
 
 ## 📁 Project Structure
