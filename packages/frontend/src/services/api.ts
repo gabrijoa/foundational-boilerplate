@@ -45,7 +45,7 @@ const handleResponse = async (response: Response) => {
 
   // For DELETE requests, a 204 No Content status is a success but has no body.
   if (response.status === 204) {
-    return;
+    return '204';
   }
 
   // If the response is successful, return the JSON body.
@@ -62,7 +62,10 @@ export const noteService = {
    * @returns {Promise<Note[]>} A promise that resolves to an array of notes.
    */
   getAllNotes: (): Promise<Note[]> => {
-    return fetch(`${API_BASE_URL}/notes`).then(handleResponse);
+    return fetch(`${API_BASE_URL}/notes`).then(handleResponse).catch((error) => {
+      console.error('Error fetching notes:', error, `${API_BASE_URL}/notes`);
+      throw error;
+    });
   },
 
   /**
