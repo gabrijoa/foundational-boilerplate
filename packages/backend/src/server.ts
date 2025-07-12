@@ -8,7 +8,7 @@
 
 // packages/backend/src/server.ts
 import express from 'express';
-import noteRoutes from './note.routes'; // <-- IMPORT THE ROUTES
+import router from './routes'; // <-- IMPORT THE ROUTES
 import cors from 'cors'; // <-- Install cors to allow frontend requests
 
 /**
@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware configuration
 app.use(cors()); // <-- ENABLE CORS - Allows requests from different origins
 app.use(express.json()); // <-- Middleware for Express to understand JSON in request body
-app.use('/api', noteRoutes); // <-- CONNECT THE ROUTES - All note routes will be prefixed with '/api'
+app.use('/api', router); // <-- CONNECT THE ROUTES - All note routes will be prefixed with '/api'
 
 /**
  * API health check route

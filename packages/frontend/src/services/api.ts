@@ -1,32 +1,30 @@
 /**
- * @fileoverview API service layer for notes management.
- * @description This file contains all HTTP client functions for communicating with the
- * backend API, providing a complete service layer for notes CRUD operations.
+ * @fileoverview Generic API service layer template
+ * @description This file contains example HTTP client functions for communicating with the
+ * backend API, providing a template service layer for CRUD operations.
  * @author Joa Gabri
  * @version 1.0.0
  */
 
 /**
- * Note data structure interface.
- * @description Defines the structure of a Note object as returned by the API.
- * @interface Note
- * @property {string} id - Unique note identifier (CUID).
- * @property {string} title - Note title.
- * @property {string | null} content - Note content, can be null.
- * @property {boolean} completed - Completion status.
- * @property {string} createdAt - Creation timestamp (ISO format).
- * @property {string} updatedAt - Last update timestamp (ISO format).
+ * Generic resource data structure interface.
+ * @description Example interface structure for API resources.
+ * Customize this interface according to your application needs.
+ * @interface Resource
+ * @property {string} id - Unique resource identifier.
+ * @property {string} name - Resource name.
+ * @property {string} status - Resource status.
+ * @property {string} created - Creation timestamp (ISO format).
  */
-export interface Note {
+export interface Resource {
   id: string;
-  title: string;
-  content: string | null;
-  completed: boolean;
-  createdAt: string;
-  updatedAt: string;
+  name: string;
+  status: string;
+  created: string;
 }
 
 // The base URL for the API, read from Vite's environment variables.
+// Update this to match your backend API endpoints
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 /**
@@ -53,28 +51,34 @@ const handleResponse = async (response: Response) => {
 };
 
 /**
- * Note service object containing all CRUD API operations.
- * @namespace noteService
+ * Generic API service object containing CRUD operations template.
+ * @namespace apiService
+ * @description Example service layer for API communication.
+ * Customize these functions according to your application needs.
  */
-export const noteService = {
+export const apiService = {
   /**
-   * Retrieves all notes from the backend.
-   * @returns {Promise<Note[]>} A promise that resolves to an array of notes.
+   * Retrieves all resources from the backend.
+   * @returns {Promise<Resource[]>} A promise that resolves to an array of resources.
+   * @example
+   * const resources = await apiService.getAllResources();
    */
-  getAllNotes: (): Promise<Note[]> => {
-    return fetch(`${API_BASE_URL}/notes`).then(handleResponse).catch((error) => {
-      console.error('Error fetching notes:', error, `${API_BASE_URL}/notes`);
+  getAllResources: (): Promise<Resource[]> => {
+    return fetch(`${API_BASE_URL}/resources`).then(handleResponse).catch((error) => {
+      console.error('Error fetching resources:', error, `${API_BASE_URL}/resources`);
       throw error;
     });
   },
 
   /**
-   * Creates a new note.
-   * @param {{ title: string; content?: string }} data - The data for the new note.
-   * @returns {Promise<Note>} A promise that resolves to the newly created note.
+   * Creates a new resource.
+   * @param {{ name: string; status?: string }} data - The data for the new resource.
+   * @returns {Promise<Resource>} A promise that resolves to the newly created resource.
+   * @example
+   * const newResource = await apiService.createResource({ name: 'New Resource' });
    */
-  createNote: (data: { title: string; content?: string }): Promise<Note> => {
-    return fetch(`${API_BASE_URL}/notes`, {
+  createResource: (data: { name: string; status?: string }): Promise<Resource> => {
+    return fetch(`${API_BASE_URL}/resources`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -82,13 +86,15 @@ export const noteService = {
   },
 
   /**
-   * Updates an existing note.
-   * @param {string} id - The ID of the note to update.
-   * @param {Partial<Note>} data - An object with the fields to update.
-   * @returns {Promise<Note>} A promise that resolves to the updated note.
+   * Updates an existing resource.
+   * @param {string} id - The ID of the resource to update.
+   * @param {Partial<Resource>} data - An object with the fields to update.
+   * @returns {Promise<Resource>} A promise that resolves to the updated resource.
+   * @example
+   * const updated = await apiService.updateResource('123', { status: 'active' });
    */
-  updateNote: (id: string, data: Partial<Omit<Note, 'id'>>): Promise<Note> => {
-    return fetch(`${API_BASE_URL}/notes/${id}`, {
+  updateResource: (id: string, data: Partial<Omit<Resource, 'id'>>): Promise<Resource> => {
+    return fetch(`${API_BASE_URL}/resources/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -96,12 +102,14 @@ export const noteService = {
   },
 
   /**
-   * Deletes a note.
-   * @param {string} id - The ID of the note to delete.
+   * Deletes a resource.
+   * @param {string} id - The ID of the resource to delete.
    * @returns {Promise<void>} A promise that resolves when the deletion is complete.
+   * @example
+   * await apiService.deleteResource('123');
    */
-  deleteNote: (id: string): Promise<void> => {
-    return fetch(`${API_BASE_URL}/notes/${id}`, {
+  deleteResource: (id: string): Promise<void> => {
+    return fetch(`${API_BASE_URL}/resources/${id}`, {
       method: 'DELETE',
     }).then(handleResponse);
   },

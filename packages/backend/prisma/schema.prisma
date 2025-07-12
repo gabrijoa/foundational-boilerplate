@@ -7,11 +7,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Note {
-  id        String   @id @default(cuid()) // ID único
-  title     String
-  content   String?  // O '?' torna o campo opcional
-  createdAt DateTime @default(now())      // Data de criação automática
-  updatedAt DateTime @updatedAt          // Data de atualização automática
-  completed Boolean  @default(false)      // Um campo para saber se a nota foi concluída
-}
+// Add your models here
+// Example:
+// model User {
+//   id        String   @id @default(cuid())
+//   email     String   @unique
+//   name      String?
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+model User {
+   id        String   @id @default(cuid())
+   email     String   @unique
+   name      String?
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+ }
